@@ -1,0 +1,1836 @@
+
+main.o:     file format elf32-littlearm
+
+Disassembly of section .text:
+
+00000000 <raise>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+   4:	e28db000 	add	fp, sp, #0	; 0x0
+   8:	e24dd00c 	sub	sp, sp, #12	; 0xc
+   c:	e50b0008 	str	r0, [fp, #-8]
+
+}
+  10:	e28bd000 	add	sp, fp, #0	; 0x0
+  14:	e8bd0800 	pop	{fp}
+  18:	e12fff1e 	bx	lr
+
+0000001c <init_irq>:
+
+void init_irq()
+{
+  1c:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+  20:	e28db000 	add	fp, sp, #0	; 0x0
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	e3a02456 	mov	r2, #1442840576	; 0x56000000
+  28:	e28220a4 	add	r2, r2, #164	; 0xa4
+  2c:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+  30:	e28330a4 	add	r3, r3, #164	; 0xa4
+  34:	e5933000 	ldr	r3, [r3]
+  38:	e3c33c69 	bic	r3, r3, #26880	; 0x6900
+  3c:	e5823000 	str	r3, [r2]
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	e3a0244a 	mov	r2, #1241513984	; 0x4a000000
+  44:	e2822008 	add	r2, r2, #8	; 0x8
+  48:	e3a0344a 	mov	r3, #1241513984	; 0x4a000000
+  4c:	e2833008 	add	r3, r3, #8	; 0x8
+  50:	e5933000 	ldr	r3, [r3]
+  54:	e3c33020 	bic	r3, r3, #32	; 0x20
+  58:	e5823000 	str	r3, [r2]
+    
+    __asm__( 
+  5c:	e10f0000 	mrs	r0, CPSR
+  60:	e3c00080 	bic	r0, r0, #128	; 0x80
+  64:	e121f000 	msr	CPSR_c, r0
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	e28bd000 	add	sp, fp, #0	; 0x0
+  6c:	e8bd0800 	pop	{fp}
+  70:	e12fff1e 	bx	lr
+
+00000074 <delay>:
+
+
+void delay(int n)
+{
+  74:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+  78:	e28db000 	add	fp, sp, #0	; 0x0
+  7c:	e24dd00c 	sub	sp, sp, #12	; 0xc
+  80:	e50b0008 	str	r0, [fp, #-8]
+	while(n--);
+  84:	e51b3008 	ldr	r3, [fp, #-8]
+  88:	e3530000 	cmp	r3, #0	; 0x0
+  8c:	03a03000 	moveq	r3, #0	; 0x0
+  90:	13a03001 	movne	r3, #1	; 0x1
+  94:	e20320ff 	and	r2, r3, #255	; 0xff
+  98:	e51b3008 	ldr	r3, [fp, #-8]
+  9c:	e2433001 	sub	r3, r3, #1	; 0x1
+  a0:	e50b3008 	str	r3, [fp, #-8]
+  a4:	e3520000 	cmp	r2, #0	; 0x0
+  a8:	1afffff5 	bne	84 <delay+0x10>
+}
+  ac:	e28bd000 	add	sp, fp, #0	; 0x0
+  b0:	e8bd0800 	pop	{fp}
+  b4:	e12fff1e 	bx	lr
+
+000000b8 <light_led>:
+
+void light_led(int led_number)
+{
+  b8:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+  bc:	e28db000 	add	fp, sp, #0	; 0x0
+  c0:	e24dd00c 	sub	sp, sp, #12	; 0xc
+  c4:	e50b0008 	str	r0, [fp, #-8]
+	switch(led_number)
+  c8:	e51b3008 	ldr	r3, [fp, #-8]
+  cc:	e3530003 	cmp	r3, #3	; 0x3
+  d0:	979ff103 	ldrls	pc, [pc, r3, lsl #2]
+  d4:	ea000026 	b	174 <light_led+0xbc>
+  d8:	000000e8 	.word	0x000000e8
+  dc:	0000010c 	.word	0x0000010c
+  e0:	00000130 	.word	0x00000130
+  e4:	00000154 	.word	0x00000154
+	{
+		case 0:
+			*(GPBCON) = 0x400;
+  e8:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+  ec:	e2833010 	add	r3, r3, #16	; 0x10
+  f0:	e3a02b01 	mov	r2, #1024	; 0x400
+  f4:	e5832000 	str	r2, [r3]
+			*(GPBDAT) = 0;
+  f8:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+  fc:	e2833014 	add	r3, r3, #20	; 0x14
+ 100:	e3a02000 	mov	r2, #0	; 0x0
+ 104:	e5832000 	str	r2, [r3]
+ 108:	ea000019 	b	174 <light_led+0xbc>
+			break;
+		case 1:
+			*(GPBCON) = 0x1000;
+ 10c:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 110:	e2833010 	add	r3, r3, #16	; 0x10
+ 114:	e3a02a01 	mov	r2, #4096	; 0x1000
+ 118:	e5832000 	str	r2, [r3]
+			*(GPBDAT) = 0x0;
+ 11c:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 120:	e2833014 	add	r3, r3, #20	; 0x14
+ 124:	e3a02000 	mov	r2, #0	; 0x0
+ 128:	e5832000 	str	r2, [r3]
+ 12c:	ea000010 	b	174 <light_led+0xbc>
+			break;
+		case 2:
+			*(GPBCON) = 0x4000;
+ 130:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 134:	e2833010 	add	r3, r3, #16	; 0x10
+ 138:	e3a02901 	mov	r2, #16384	; 0x4000
+ 13c:	e5832000 	str	r2, [r3]
+			*(GPBDAT) = 0x0;
+ 140:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 144:	e2833014 	add	r3, r3, #20	; 0x14
+ 148:	e3a02000 	mov	r2, #0	; 0x0
+ 14c:	e5832000 	str	r2, [r3]
+ 150:	ea000007 	b	174 <light_led+0xbc>
+			break;
+		case 3:
+			*(GPBCON) = 0x10000;
+ 154:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 158:	e2833010 	add	r3, r3, #16	; 0x10
+ 15c:	e3a02801 	mov	r2, #65536	; 0x10000
+ 160:	e5832000 	str	r2, [r3]
+			*(GPBDAT) = 0x0;
+ 164:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 168:	e2833014 	add	r3, r3, #20	; 0x14
+ 16c:	e3a02000 	mov	r2, #0	; 0x0
+ 170:	e5832000 	str	r2, [r3]
+			break;
+		default:
+			break;
+	}
+}
+ 174:	e28bd000 	add	sp, fp, #0	; 0x0
+ 178:	e8bd0800 	pop	{fp}
+ 17c:	e12fff1e 	bx	lr
+
+00000180 <uart0_init>:
+
+void uart0_init()
+{
+ 180:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+ 184:	e28db000 	add	fp, sp, #0	; 0x0
+    GPHCON &= ~(0xf<<4);
+ 188:	e3a02456 	mov	r2, #1442840576	; 0x56000000
+ 18c:	e2822070 	add	r2, r2, #112	; 0x70
+ 190:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 194:	e2833070 	add	r3, r3, #112	; 0x70
+ 198:	e5933000 	ldr	r3, [r3]
+ 19c:	e3c330f0 	bic	r3, r3, #240	; 0xf0
+ 1a0:	e5823000 	str	r3, [r2]
+    GPHCON |= (0xa<<4);
+ 1a4:	e3a02456 	mov	r2, #1442840576	; 0x56000000
+ 1a8:	e2822070 	add	r2, r2, #112	; 0x70
+ 1ac:	e3a03456 	mov	r3, #1442840576	; 0x56000000
+ 1b0:	e2833070 	add	r3, r3, #112	; 0x70
+ 1b4:	e5933000 	ldr	r3, [r3]
+ 1b8:	e38330a0 	orr	r3, r3, #160	; 0xa0
+ 1bc:	e5823000 	str	r3, [r2]
+	
+	*(ULCON0) = 0x03;
+ 1c0:	e3a02205 	mov	r2, #1342177280	; 0x50000000
+ 1c4:	e3a03003 	mov	r3, #3	; 0x3
+ 1c8:	e5823000 	str	r3, [r2]
+	*(UCON0) = 0x05;
+ 1cc:	e3a02245 	mov	r2, #1342177284	; 0x50000004
+ 1d0:	e3a03005 	mov	r3, #5	; 0x5
+ 1d4:	e5823000 	str	r3, [r2]
+	UBRDIV0 = 0x1a;
+ 1d8:	e3a03205 	mov	r3, #1342177280	; 0x50000000
+ 1dc:	e2833028 	add	r3, r3, #40	; 0x28
+ 1e0:	e3a0201a 	mov	r2, #26	; 0x1a
+ 1e4:	e5832000 	str	r2, [r3]
+}
+ 1e8:	e28bd000 	add	sp, fp, #0	; 0x0
+ 1ec:	e8bd0800 	pop	{fp}
+ 1f0:	e12fff1e 	bx	lr
+
+000001f4 <uart0_send_data>:
+
+void uart0_send_data(char data)
+{
+ 1f4:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+ 1f8:	e28db000 	add	fp, sp, #0	; 0x0
+ 1fc:	e24dd00c 	sub	sp, sp, #12	; 0xc
+ 200:	e1a03000 	mov	r3, r0
+ 204:	e54b3005 	strb	r3, [fp, #-5]
+	while (!(UTRSTAT0 & (1<<1)));
+ 208:	e3a03205 	mov	r3, #1342177280	; 0x50000000
+ 20c:	e2833010 	add	r3, r3, #16	; 0x10
+ 210:	e5933000 	ldr	r3, [r3]
+ 214:	e2033002 	and	r3, r3, #2	; 0x2
+ 218:	e3530000 	cmp	r3, #0	; 0x0
+ 21c:	0afffff9 	beq	208 <uart0_send_data+0x14>
+	UTXH0 = data;
+ 220:	e3a03205 	mov	r3, #1342177280	; 0x50000000
+ 224:	e2833020 	add	r3, r3, #32	; 0x20
+ 228:	e55b2005 	ldrb	r2, [fp, #-5]
+ 22c:	e5832000 	str	r2, [r3]
+}
+ 230:	e28bd000 	add	sp, fp, #0	; 0x0
+ 234:	e8bd0800 	pop	{fp}
+ 238:	e12fff1e 	bx	lr
+
+0000023c <uart0_recv_data>:
+
+void uart0_recv_data(char* data)
+{
+ 23c:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+ 240:	e28db000 	add	fp, sp, #0	; 0x0
+ 244:	e24dd00c 	sub	sp, sp, #12	; 0xc
+ 248:	e50b0008 	str	r0, [fp, #-8]
+	while(!(UTRSTAT0 & 0x01));
+ 24c:	e3a03205 	mov	r3, #1342177280	; 0x50000000
+ 250:	e2833010 	add	r3, r3, #16	; 0x10
+ 254:	e5933000 	ldr	r3, [r3]
+ 258:	e2033001 	and	r3, r3, #1	; 0x1
+ 25c:	e3530000 	cmp	r3, #0	; 0x0
+ 260:	0afffff9 	beq	24c <uart0_recv_data+0x10>
+	*data = (URXH0);
+ 264:	e3a03205 	mov	r3, #1342177280	; 0x50000000
+ 268:	e2833024 	add	r3, r3, #36	; 0x24
+ 26c:	e5933000 	ldr	r3, [r3]
+ 270:	e20330ff 	and	r3, r3, #255	; 0xff
+ 274:	e51b2008 	ldr	r2, [fp, #-8]
+ 278:	e5c23000 	strb	r3, [r2]
+}
+ 27c:	e28bd000 	add	sp, fp, #0	; 0x0
+ 280:	e8bd0800 	pop	{fp}
+ 284:	e12fff1e 	bx	lr
+
+00000288 <print_string>:
+
+void print_string(const char* string)
+{
+ 288:	e92d4800 	push	{fp, lr}
+ 28c:	e28db004 	add	fp, sp, #4	; 0x4
+ 290:	e24dd010 	sub	sp, sp, #16	; 0x10
+ 294:	e50b0010 	str	r0, [fp, #-16]
+	const char* string_temp = string;
+ 298:	e51b3010 	ldr	r3, [fp, #-16]
+ 29c:	e50b3008 	str	r3, [fp, #-8]
+	if(string_temp != NULL)
+ 2a0:	e51b3008 	ldr	r3, [fp, #-8]
+ 2a4:	e3530000 	cmp	r3, #0	; 0x0
+ 2a8:	0a00000b 	beq	2dc <print_string+0x54>
+ 2ac:	ea000006 	b	2cc <print_string+0x44>
+	{
+		while(*string_temp)
+		{
+			uart0_send_data(*string_temp);
+ 2b0:	e51b3008 	ldr	r3, [fp, #-8]
+ 2b4:	e5d33000 	ldrb	r3, [r3]
+ 2b8:	e1a00003 	mov	r0, r3
+ 2bc:	ebfffffe 	bl	1f4 <uart0_send_data>
+			string_temp++;
+ 2c0:	e51b3008 	ldr	r3, [fp, #-8]
+ 2c4:	e2833001 	add	r3, r3, #1	; 0x1
+ 2c8:	e50b3008 	str	r3, [fp, #-8]
+void print_string(const char* string)
+{
+	const char* string_temp = string;
+	if(string_temp != NULL)
+	{
+		while(*string_temp)
+ 2cc:	e51b3008 	ldr	r3, [fp, #-8]
+ 2d0:	e5d33000 	ldrb	r3, [r3]
+ 2d4:	e3530000 	cmp	r3, #0	; 0x0
+ 2d8:	1afffff4 	bne	2b0 <print_string+0x28>
+		{
+			uart0_send_data(*string_temp);
+			string_temp++;
+		}
+	}
+}
+ 2dc:	e24bd004 	sub	sp, fp, #4	; 0x4
+ 2e0:	e8bd4800 	pop	{fp, lr}
+ 2e4:	e12fff1e 	bx	lr
+
+000002e8 <print_int_deci_data>:
+
+void print_int_deci_data(int int_data)
+{
+ 2e8:	e92d4800 	push	{fp, lr}
+ 2ec:	e28db004 	add	fp, sp, #4	; 0x4
+ 2f0:	e24dd020 	sub	sp, sp, #32	; 0x20
+ 2f4:	e50b0020 	str	r0, [fp, #-32]
+	char bit_values[10] = {0};
+ 2f8:	e24b1017 	sub	r1, fp, #23	; 0x17
+ 2fc:	e50b1024 	str	r1, [fp, #-36]
+ 300:	e3a03000 	mov	r3, #0	; 0x0
+ 304:	e51b2024 	ldr	r2, [fp, #-36]
+ 308:	e5c23000 	strb	r3, [r2]
+ 30c:	e51b3024 	ldr	r3, [fp, #-36]
+ 310:	e2833001 	add	r3, r3, #1	; 0x1
+ 314:	e50b3024 	str	r3, [fp, #-36]
+ 318:	e3a03000 	mov	r3, #0	; 0x0
+ 31c:	e51bc024 	ldr	ip, [fp, #-36]
+ 320:	e5cc3000 	strb	r3, [ip]
+ 324:	e51b1024 	ldr	r1, [fp, #-36]
+ 328:	e2811001 	add	r1, r1, #1	; 0x1
+ 32c:	e50b1024 	str	r1, [fp, #-36]
+ 330:	e3a03000 	mov	r3, #0	; 0x0
+ 334:	e51b2024 	ldr	r2, [fp, #-36]
+ 338:	e5c23000 	strb	r3, [r2]
+ 33c:	e51b3024 	ldr	r3, [fp, #-36]
+ 340:	e2833001 	add	r3, r3, #1	; 0x1
+ 344:	e50b3024 	str	r3, [fp, #-36]
+ 348:	e3a03000 	mov	r3, #0	; 0x0
+ 34c:	e51bc024 	ldr	ip, [fp, #-36]
+ 350:	e5cc3000 	strb	r3, [ip]
+ 354:	e51b1024 	ldr	r1, [fp, #-36]
+ 358:	e2811001 	add	r1, r1, #1	; 0x1
+ 35c:	e50b1024 	str	r1, [fp, #-36]
+ 360:	e3a03000 	mov	r3, #0	; 0x0
+ 364:	e51b2024 	ldr	r2, [fp, #-36]
+ 368:	e5c23000 	strb	r3, [r2]
+ 36c:	e51b3024 	ldr	r3, [fp, #-36]
+ 370:	e2833001 	add	r3, r3, #1	; 0x1
+ 374:	e50b3024 	str	r3, [fp, #-36]
+ 378:	e3a03000 	mov	r3, #0	; 0x0
+ 37c:	e51bc024 	ldr	ip, [fp, #-36]
+ 380:	e5cc3000 	strb	r3, [ip]
+ 384:	e51b1024 	ldr	r1, [fp, #-36]
+ 388:	e2811001 	add	r1, r1, #1	; 0x1
+ 38c:	e50b1024 	str	r1, [fp, #-36]
+ 390:	e3a03000 	mov	r3, #0	; 0x0
+ 394:	e51b2024 	ldr	r2, [fp, #-36]
+ 398:	e5c23000 	strb	r3, [r2]
+ 39c:	e51b3024 	ldr	r3, [fp, #-36]
+ 3a0:	e2833001 	add	r3, r3, #1	; 0x1
+ 3a4:	e50b3024 	str	r3, [fp, #-36]
+ 3a8:	e3a03000 	mov	r3, #0	; 0x0
+ 3ac:	e51bc024 	ldr	ip, [fp, #-36]
+ 3b0:	e5cc3000 	strb	r3, [ip]
+ 3b4:	e51b1024 	ldr	r1, [fp, #-36]
+ 3b8:	e2811001 	add	r1, r1, #1	; 0x1
+ 3bc:	e50b1024 	str	r1, [fp, #-36]
+ 3c0:	e3a03000 	mov	r3, #0	; 0x0
+ 3c4:	e51b2024 	ldr	r2, [fp, #-36]
+ 3c8:	e5c23000 	strb	r3, [r2]
+ 3cc:	e51b3024 	ldr	r3, [fp, #-36]
+ 3d0:	e2833001 	add	r3, r3, #1	; 0x1
+ 3d4:	e50b3024 	str	r3, [fp, #-36]
+ 3d8:	e3a03000 	mov	r3, #0	; 0x0
+ 3dc:	e51bc024 	ldr	ip, [fp, #-36]
+ 3e0:	e5cc3000 	strb	r3, [ip]
+ 3e4:	e51b1024 	ldr	r1, [fp, #-36]
+ 3e8:	e2811001 	add	r1, r1, #1	; 0x1
+	char bit_value = 0;
+ 3ec:	e3a03000 	mov	r3, #0	; 0x0
+ 3f0:	e54b300d 	strb	r3, [fp, #-13]
+	int bit_divesor = 10;
+ 3f4:	e3a0300a 	mov	r3, #10	; 0xa
+ 3f8:	e50b300c 	str	r3, [fp, #-12]
+	int index = 9;
+ 3fc:	e3a03009 	mov	r3, #9	; 0x9
+ 400:	e50b3008 	str	r3, [fp, #-8]
+	
+	for(index = 9; index >= 0 ;index--)
+ 404:	e3a03009 	mov	r3, #9	; 0x9
+ 408:	e50b3008 	str	r3, [fp, #-8]
+ 40c:	ea000021 	b	498 <print_int_deci_data+0x1b0>
+	{
+		bit_value = (char)((int_data % bit_divesor) / (bit_divesor / 10));
+ 410:	e51b3020 	ldr	r3, [fp, #-32]
+ 414:	e1a00003 	mov	r0, r3
+ 418:	e51b100c 	ldr	r1, [fp, #-12]
+ 41c:	ebfffffe 	bl	0 <__aeabi_idivmod>
+ 420:	e1a03001 	mov	r3, r1
+ 424:	e1a00003 	mov	r0, r3
+ 428:	e51b100c 	ldr	r1, [fp, #-12]
+ 42c:	e59f30c0 	ldr	r3, [pc, #192]	; 4f4 <print_int_deci_data+0x20c>
+ 430:	e0c32391 	smull	r2, r3, r1, r3
+ 434:	e1a02143 	asr	r2, r3, #2
+ 438:	e1a03fc1 	asr	r3, r1, #31
+ 43c:	e0633002 	rsb	r3, r3, r2
+ 440:	e1a01003 	mov	r1, r3
+ 444:	ebfffffe 	bl	0 <__aeabi_idiv>
+ 448:	e1a03000 	mov	r3, r0
+ 44c:	e54b300d 	strb	r3, [fp, #-13]
+		bit_divesor = bit_divesor * 10;
+ 450:	e51b300c 	ldr	r3, [fp, #-12]
+ 454:	e1a02083 	lsl	r2, r3, #1
+ 458:	e1a03102 	lsl	r3, r2, #2
+ 45c:	e0823003 	add	r3, r2, r3
+ 460:	e50b300c 	str	r3, [fp, #-12]
+		bit_values[index] = bit_value + '0';
+ 464:	e51b1008 	ldr	r1, [fp, #-8]
+ 468:	e55b300d 	ldrb	r3, [fp, #-13]
+ 46c:	e2833030 	add	r3, r3, #48	; 0x30
+ 470:	e20300ff 	and	r0, r3, #255	; 0xff
+ 474:	e3e02012 	mvn	r2, #18	; 0x12
+ 478:	e24bc004 	sub	ip, fp, #4	; 0x4
+ 47c:	e08c3001 	add	r3, ip, r1
+ 480:	e0832002 	add	r2, r3, r2
+ 484:	e1a03000 	mov	r3, r0
+ 488:	e5c23000 	strb	r3, [r2]
+	char bit_values[10] = {0};
+	char bit_value = 0;
+	int bit_divesor = 10;
+	int index = 9;
+	
+	for(index = 9; index >= 0 ;index--)
+ 48c:	e51b3008 	ldr	r3, [fp, #-8]
+ 490:	e2433001 	sub	r3, r3, #1	; 0x1
+ 494:	e50b3008 	str	r3, [fp, #-8]
+ 498:	e51b3008 	ldr	r3, [fp, #-8]
+ 49c:	e3530000 	cmp	r3, #0	; 0x0
+ 4a0:	aaffffda 	bge	410 <print_int_deci_data+0x128>
+		bit_value = (char)((int_data % bit_divesor) / (bit_divesor / 10));
+		bit_divesor = bit_divesor * 10;
+		bit_values[index] = bit_value + '0';
+	}
+	
+	for(index = 0; index < 10; index++)
+ 4a4:	e3a03000 	mov	r3, #0	; 0x0
+ 4a8:	e50b3008 	str	r3, [fp, #-8]
+ 4ac:	ea00000a 	b	4dc <print_int_deci_data+0x1f4>
+	{
+		uart0_send_data(bit_values[index]);
+ 4b0:	e51b3008 	ldr	r3, [fp, #-8]
+ 4b4:	e3e02012 	mvn	r2, #18	; 0x12
+ 4b8:	e24b1004 	sub	r1, fp, #4	; 0x4
+ 4bc:	e0813003 	add	r3, r1, r3
+ 4c0:	e0833002 	add	r3, r3, r2
+ 4c4:	e5d33000 	ldrb	r3, [r3]
+ 4c8:	e1a00003 	mov	r0, r3
+ 4cc:	ebfffffe 	bl	1f4 <uart0_send_data>
+		bit_value = (char)((int_data % bit_divesor) / (bit_divesor / 10));
+		bit_divesor = bit_divesor * 10;
+		bit_values[index] = bit_value + '0';
+	}
+	
+	for(index = 0; index < 10; index++)
+ 4d0:	e51b3008 	ldr	r3, [fp, #-8]
+ 4d4:	e2833001 	add	r3, r3, #1	; 0x1
+ 4d8:	e50b3008 	str	r3, [fp, #-8]
+ 4dc:	e51b3008 	ldr	r3, [fp, #-8]
+ 4e0:	e3530009 	cmp	r3, #9	; 0x9
+ 4e4:	dafffff1 	ble	4b0 <print_int_deci_data+0x1c8>
+	{
+		uart0_send_data(bit_values[index]);
+	}
+}
+ 4e8:	e24bd004 	sub	sp, fp, #4	; 0x4
+ 4ec:	e8bd4800 	pop	{fp, lr}
+ 4f0:	e12fff1e 	bx	lr
+ 4f4:	66666667 	.word	0x66666667
+
+000004f8 <printf_string>:
+
+void printf_string(const char* string, ...)
+{
+ 4f8:	e92d000f 	push	{r0, r1, r2, r3}
+ 4fc:	e92d4800 	push	{fp, lr}
+ 500:	e28db004 	add	fp, sp, #4	; 0x4
+ 504:	e24dd010 	sub	sp, sp, #16	; 0x10
+	const char* string_temp = string;
+ 508:	e59b3004 	ldr	r3, [fp, #4]
+ 50c:	e50b3010 	str	r3, [fp, #-16]
+	va_list arg_ptr;
+	va_start(arg_ptr, string);
+ 510:	e28b3008 	add	r3, fp, #8	; 0x8
+ 514:	e50b3014 	str	r3, [fp, #-20]
+	
+	va_end(arg_ptr);
+	if(string_temp != NULL)
+ 518:	e51b3010 	ldr	r3, [fp, #-16]
+ 51c:	e3530000 	cmp	r3, #0	; 0x0
+ 520:	0a000020 	beq	5a8 <printf_string+0xb0>
+ 524:	ea00001b 	b	598 <printf_string+0xa0>
+	{
+		while(*string_temp)
+		{
+			if(*string_temp == '%')
+ 528:	e51b3010 	ldr	r3, [fp, #-16]
+ 52c:	e5d33000 	ldrb	r3, [r3]
+ 530:	e3530025 	cmp	r3, #37	; 0x25
+ 534:	1a000010 	bne	57c <printf_string+0x84>
+			{
+				switch(*(string_temp + 1))
+ 538:	e51b3010 	ldr	r3, [fp, #-16]
+ 53c:	e2833001 	add	r3, r3, #1	; 0x1
+ 540:	e5d33000 	ldrb	r3, [r3]
+ 544:	e3530064 	cmp	r3, #100	; 0x64
+ 548:	1a000007 	bne	56c <printf_string+0x74>
+				{
+					int int_data;
+					char char_data;
+					case 'd':
+						int_data = va_arg(arg_ptr, int);
+ 54c:	e51b2014 	ldr	r2, [fp, #-20]
+ 550:	e2823004 	add	r3, r2, #4	; 0x4
+ 554:	e50b3014 	str	r3, [fp, #-20]
+ 558:	e1a03002 	mov	r3, r2
+ 55c:	e5933000 	ldr	r3, [r3]
+ 560:	e50b300c 	str	r3, [fp, #-12]
+						print_int_deci_data(int_data);
+ 564:	e51b000c 	ldr	r0, [fp, #-12]
+ 568:	ebfffffe 	bl	2e8 <print_int_deci_data>
+						char_data = va_arg(arg_ptr, char);
+						uart0_send_data(char_data);
+*/					default:
+						break;
+				}
+				string_temp++;
+ 56c:	e51b3010 	ldr	r3, [fp, #-16]
+ 570:	e2833001 	add	r3, r3, #1	; 0x1
+ 574:	e50b3010 	str	r3, [fp, #-16]
+ 578:	ea000003 	b	58c <printf_string+0x94>
+			}else
+			{
+				uart0_send_data(*string_temp);
+ 57c:	e51b3010 	ldr	r3, [fp, #-16]
+ 580:	e5d33000 	ldrb	r3, [r3]
+ 584:	e1a00003 	mov	r0, r3
+ 588:	ebfffffe 	bl	1f4 <uart0_send_data>
+			}
+			
+			
+			string_temp++;
+ 58c:	e51b3010 	ldr	r3, [fp, #-16]
+ 590:	e2833001 	add	r3, r3, #1	; 0x1
+ 594:	e50b3010 	str	r3, [fp, #-16]
+	va_start(arg_ptr, string);
+	
+	va_end(arg_ptr);
+	if(string_temp != NULL)
+	{
+		while(*string_temp)
+ 598:	e51b3010 	ldr	r3, [fp, #-16]
+ 59c:	e5d33000 	ldrb	r3, [r3]
+ 5a0:	e3530000 	cmp	r3, #0	; 0x0
+ 5a4:	1affffdf 	bne	528 <printf_string+0x30>
+			
+			
+			string_temp++;
+		}
+	}
+}
+ 5a8:	e24bd004 	sub	sp, fp, #4	; 0x4
+ 5ac:	e8bd4800 	pop	{fp, lr}
+ 5b0:	e28dd010 	add	sp, sp, #16	; 0x10
+ 5b4:	e12fff1e 	bx	lr
+
+000005b8 <gboot_main>:
+
+int gboot_main()
+{
+ 5b8:	e92d4800 	push	{fp, lr}
+ 5bc:	e28db004 	add	fp, sp, #4	; 0x4
+ 5c0:	e24dd010 	sub	sp, sp, #16	; 0x10
+	char data = 'b';
+ 5c4:	e3a03062 	mov	r3, #98	; 0x62
+ 5c8:	e54b300d 	strb	r3, [fp, #-13]
+	int index = 0;
+ 5cc:	e3a03000 	mov	r3, #0	; 0x0
+ 5d0:	e50b300c 	str	r3, [fp, #-12]
+	int a = 18;
+ 5d4:	e3a03012 	mov	r3, #18	; 0x12
+ 5d8:	e50b3008 	str	r3, [fp, #-8]
+	
+	for(index = 0; index < LED_SUM; index++)
+ 5dc:	e3a03000 	mov	r3, #0	; 0x0
+ 5e0:	e50b300c 	str	r3, [fp, #-12]
+ 5e4:	ea000007 	b	608 <gboot_main+0x50>
+	{
+		light_led(index);
+ 5e8:	e51b000c 	ldr	r0, [fp, #-12]
+ 5ec:	ebfffffe 	bl	b8 <light_led>
+		delay(10000);
+ 5f0:	e3a00c27 	mov	r0, #9984	; 0x2700
+ 5f4:	e2800010 	add	r0, r0, #16	; 0x10
+ 5f8:	ebfffffe 	bl	74 <delay>
+{
+	char data = 'b';
+	int index = 0;
+	int a = 18;
+	
+	for(index = 0; index < LED_SUM; index++)
+ 5fc:	e51b300c 	ldr	r3, [fp, #-12]
+ 600:	e2833001 	add	r3, r3, #1	; 0x1
+ 604:	e50b300c 	str	r3, [fp, #-12]
+ 608:	e51b300c 	ldr	r3, [fp, #-12]
+ 60c:	e3530003 	cmp	r3, #3	; 0x3
+ 610:	dafffff4 	ble	5e8 <gboot_main+0x30>
+		light_led(index);
+		delay(10000);
+	}
+	
+	
+	uart0_init();
+ 614:	ebfffffe 	bl	180 <uart0_init>
+	
+	while(1)
+	{
+		print_string("\nHello G-Boot\n");
+ 618:	e59f0050 	ldr	r0, [pc, #80]	; 670 <gboot_main+0xb8>
+ 61c:	ebfffffe 	bl	288 <print_string>
+		printf_string("a = %d\n", a);
+ 620:	e59f004c 	ldr	r0, [pc, #76]	; 674 <gboot_main+0xbc>
+ 624:	e51b1008 	ldr	r1, [fp, #-8]
+ 628:	ebfffffe 	bl	4f8 <printf_string>
+		uart0_recv_data(&data);
+ 62c:	e24b300d 	sub	r3, fp, #13	; 0xd
+ 630:	e1a00003 	mov	r0, r3
+ 634:	ebfffffe 	bl	23c <uart0_recv_data>
+		uart0_send_data(data);
+ 638:	e55b300d 	ldrb	r3, [fp, #-13]
+ 63c:	e1a00003 	mov	r0, r3
+ 640:	ebfffffe 	bl	1f4 <uart0_send_data>
+		light_led(3);
+ 644:	e3a00003 	mov	r0, #3	; 0x3
+ 648:	ebfffffe 	bl	b8 <light_led>
+		delay(200000);
+ 64c:	e3a00bc3 	mov	r0, #199680	; 0x30c00
+ 650:	e2800d05 	add	r0, r0, #320	; 0x140
+ 654:	ebfffffe 	bl	74 <delay>
+		light_led(0);
+ 658:	e3a00000 	mov	r0, #0	; 0x0
+ 65c:	ebfffffe 	bl	b8 <light_led>
+		delay(200000);
+ 660:	e3a00bc3 	mov	r0, #199680	; 0x30c00
+ 664:	e2800d05 	add	r0, r0, #320	; 0x140
+ 668:	ebfffffe 	bl	74 <delay>
+ 66c:	eaffffe9 	b	618 <gboot_main+0x60>
+ 670:	00000000 	.word	0x00000000
+ 674:	00000010 	.word	0x00000010
+Disassembly of section .debug_abbrev:
+
+00000000 <.debug_abbrev>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	25011101 	strcs	r1, [r1, #-257]
+   4:	030b130e 	movweq	r1, #45838	; 0xb30e
+   8:	110e1b0e 	tstne	lr, lr, lsl #22
+   c:	10011201 	andne	r1, r1, r1, lsl #4
+
+}
+  10:	02000006 	andeq	r0, r0, #6	; 0x6
+  14:	0b0b0024 	bleq	2c00ac <gboot_main+0x2bfaf4>
+  18:	0e030b3e 	vmoveq.16	d3[0], r0
+
+void init_irq()
+{
+  1c:	24030000 	strcs	r0, [r3]
+  20:	3e0b0b00 	fmacdcc	d0, d11, d0
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	0008030b 	andeq	r0, r8, fp, lsl #6
+  28:	00240400 	eoreq	r0, r4, r0, lsl #8
+  2c:	0b3e0b0b 	bleq	f82c60 <gboot_main+0xf826a8>
+  30:	0f050000 	svceq	0x00050000
+  34:	000b0b00 	andeq	r0, fp, r0, lsl #22
+  38:	000f0600 	andeq	r0, pc, r0, lsl #12
+  3c:	13490b0b 	movtne	r0, #39691	; 0x9b0b
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	16070000 	strne	r0, [r7], -r0
+  44:	3a0e0300 	bcc	380c4c <gboot_main+0x380694>
+  48:	490b3b0b 	stmdbmi	fp, {r0, r1, r3, r8, r9, fp, ip, sp}
+  4c:	08000013 	stmdaeq	r0, {r0, r1, r4}
+  50:	0e030113 	mcreq	1, 0, r0, cr3, cr3, {0}
+  54:	13010b0b 	movwne	r0, #6923	; 0x1b0b
+  58:	0d090000 	stceq	0, cr0, [r9]
+    
+    __asm__( 
+  5c:	490e0300 	stmdbmi	lr, {r8, r9}
+  60:	340a3813 	strcc	r3, [sl], #-2067
+  64:	0a00000c 	beq	9c <.debug_abbrev+0x9c>
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	13490026 	movtne	r0, #36902	; 0x9026
+  6c:	2e0b0000 	cdpcs	0, 0, cr0, cr11, cr0, {0}
+  70:	030c3f01 	movweq	r3, #52993	; 0xcf01
+
+
+void delay(int n)
+{
+  74:	3b0b3a0e 	blcc	2ce8b4 <gboot_main+0x2ce2fc>
+  78:	490c270b 	stmdbmi	ip, {r0, r1, r3, r8, r9, sl, sp}
+  7c:	12011113 	andne	r1, r1, #-1073741820	; 0xc0000004
+  80:	01064001 	tsteq	r6, r1
+	while(n--);
+  84:	0c000013 	stceq	0, cr0, [r0], {19}
+  88:	08030005 	stmdaeq	r3, {r0, r2}
+  8c:	0b3b0b3a 	bleq	ec2d7c <gboot_main+0xec27c4>
+  90:	0a021349 	beq	84dbc <gboot_main+0x84804>
+  94:	2e0d0000 	cdpcs	0, 0, cr0, cr13, cr0, {0}
+  98:	030c3f00 	movweq	r3, #52992	; 0xcf00
+  9c:	3b0b3a0e 	blcc	2ce8dc <gboot_main+0x2ce324>
+  a0:	1201110b 	andne	r1, r1, #-1073741822	; 0xc0000002
+  a4:	00064001 	andeq	r4, r6, r1
+  a8:	012e0e00 	teqeq	lr, r0, lsl #28
+}
+  ac:	0e030c3f 	mcreq	12, 0, r0, cr3, cr15, {1}
+  b0:	0b3b0b3a 	bleq	ec2da0 <gboot_main+0xec27e8>
+  b4:	01110c27 	tsteq	r1, r7, lsr #24
+
+void light_led(int led_number)
+{
+  b8:	06400112 	undefined
+  bc:	00001301 	andeq	r1, r0, r1, lsl #6
+  c0:	0300050f 	movweq	r0, #1295	; 0x50f
+  c4:	3b0b3a0e 	blcc	2ce904 <gboot_main+0x2ce34c>
+	switch(led_number)
+  c8:	0213490b 	andseq	r4, r3, #180224	; 0x2c000
+  cc:	1000000a 	andne	r0, r0, sl
+  d0:	0e030034 	mcreq	0, 0, r0, cr3, cr4, {1}
+  d4:	0b3b0b3a 	bleq	ec2dc4 <gboot_main+0xec280c>
+  d8:	0a021349 	beq	84e04 <gboot_main+0x8484c>
+  dc:	01110000 	tsteq	r1, r0
+  e0:	01134901 	tsteq	r3, r1, lsl #18
+  e4:	12000013 	andne	r0, r0, #19	; 0x13
+	{
+		case 0:
+			*(GPBCON) = 0x400;
+  e8:	13490021 	movtne	r0, #36897	; 0x9021
+  ec:	00000b2f 	andeq	r0, r0, pc, lsr #22
+  f0:	00001813 	andeq	r1, r0, r3, lsl r8
+  f4:	010b1400 	tsteq	fp, r0, lsl #8
+			*(GPBDAT) = 0;
+  f8:	01120111 	tsteq	r2, r1, lsl r1
+  fc:	2e150000 	wxorcs	wr0, wr5, wr0
+ 100:	030c3f01 	movweq	r3, #52993	; 0xcf01
+ 104:	3b0b3a0e 	blcc	2ce944 <gboot_main+0x2ce38c>
+ 108:	1113490b 	tstne	r3, fp, lsl #18
+			break;
+		case 1:
+			*(GPBCON) = 0x1000;
+ 10c:	40011201 	andmi	r1, r1, r1, lsl #4
+ 110:	16000006 	strne	r0, [r0], -r6
+ 114:	08030034 	stmdaeq	r3, {r2, r4, r5}
+ 118:	0b3b0b3a 	bleq	ec2e08 <gboot_main+0xec2850>
+			*(GPBDAT) = 0x0;
+ 11c:	0a021349 	beq	84e48 <gboot_main+0x84890>
+ 120:	Address 0x00000120 is out of bounds.
+
+Disassembly of section .debug_info:
+
+00000000 <.debug_info>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	000002f5 	strdeq	r0, [r0], -r5
+   4:	00000002 	andeq	r0, r0, r2
+   8:	01040000 	tsteq	r4, r0
+   c:	00000017 	andeq	r0, r0, r7, lsl r0
+
+}
+  10:	00017101 	andeq	r7, r1, r1, lsl #2
+  14:	00006500 	andeq	r6, r0, r0, lsl #10
+  18:	00000000 	andeq	r0, r0, r0
+
+void init_irq()
+{
+  1c:	00067800 	andeq	r7, r6, r0, lsl #16
+  20:	00000000 	andeq	r0, r0, r0
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	07040200 	streq	r0, [r4, -r0, lsl #4]
+  28:	00000114 	andeq	r0, r0, r4, lsl r1
+  2c:	da080102 	ble	200410 <gboot_main+0x1ffe58>
+  30:	02000000 	andeq	r0, r0, #0	; 0x0
+  34:	01310702 	teqeq	r1, r2, lsl #14
+  38:	04020000 	streq	r0, [r2]
+  3c:	00017807 	andeq	r7, r1, r7, lsl #16
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	06010200 	streq	r0, [r1], -r0, lsl #4
+  44:	000000f1 	strdeq	r0, [r0], -r1
+  48:	37050202 	strcc	r0, [r5, -r2, lsl #4]
+  4c:	03000000 	movweq	r0, #0	; 0x0
+  50:	6e690504 	cdpvs	5, 6, cr0, cr9, cr4, {0}
+  54:	08020074 	stmdaeq	r2, {r2, r4, r5, r6}
+  58:	0000a805 	andeq	sl, r0, r5, lsl #16
+    
+    __asm__( 
+  5c:	07080200 	streq	r0, [r8, -r0, lsl #4]
+  60:	000000fd 	strdeq	r0, [r0], -sp
+  64:	c0050402 	andgt	r0, r5, r2, lsl #8
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	04000000 	streq	r0, [r0]
+  6c:	04050704 	streq	r0, [r5], #-1796
+  70:	00760406 	rsbseq	r0, r6, r6, lsl #8
+
+
+void delay(int n)
+{
+  74:	01020000 	tsteq	r2, r0
+  78:	00014f08 	andeq	r4, r1, r8, lsl #30
+  7c:	01a30700 	undefined instruction 0x01a30700
+  80:	2b020000 	blcs	80088 <gboot_main+0x7fad0>
+	while(n--);
+  84:	00000088 	andeq	r0, r0, r8, lsl #1
+  88:	0000b608 	andeq	fp, r0, r8, lsl #12
+  8c:	00a00400 	adceq	r0, r0, r0, lsl #8
+  90:	4a090000 	bmi	240008 <gboot_main+0x23fa50>
+  94:	6e000001 	cdpvs	0, 0, cr0, cr0, cr1, {0}
+  98:	02000000 	andeq	r0, r0, #0	; 0x0
+  9c:	00010023 	andeq	r0, r1, r3, lsr #32
+  a0:	00a60406 	adceq	r0, r6, r6, lsl #8
+  a4:	760a0000 	strvc	r0, [sl], -r0
+  a8:	07000000 	streq	r0, [r0, -r0]
+}
+  ac:	0000007c 	andeq	r0, r0, ip, ror r0
+  b0:	007d6902 	rsbseq	r6, sp, r2, lsl #18
+  b4:	010b0000 	tsteq	fp, r0
+
+void light_led(int led_number)
+{
+  b8:	00000144 	andeq	r0, r0, r4, asr #2
+  bc:	4f012501 	svcmi	0x00012501
+  c0:	00000000 	andeq	r0, r0, r0
+  c4:	1c000000 	stcne	0, cr0, [r0], {0}
+	switch(led_number)
+  c8:	00000000 	andeq	r0, r0, r0
+  cc:	e0000000 	and	r0, r0, r0
+  d0:	0c000000 	stceq	0, cr0, [r0], {0}
+  d4:	24010061 	strcs	r0, [r1], #-97
+  d8:	0000004f 	andeq	r0, r0, pc, asr #32
+  dc:	00749102 	rsbseq	r9, r4, r2, lsl #2
+  e0:	0094010d 	addseq	r0, r4, sp, lsl #2
+  e4:	2a010000 	bcs	400ec <gboot_main+0x3fb34>
+	{
+		case 0:
+			*(GPBCON) = 0x400;
+  e8:	0000001c 	andeq	r0, r0, ip, lsl r0
+  ec:	00000074 	andeq	r0, r0, r4, ror r0
+  f0:	0000002b 	andeq	r0, r0, fp, lsr #32
+  f4:	005f010e 	subseq	r0, pc, lr, lsl #2
+			*(GPBDAT) = 0;
+  f8:	3e010000 	cdpcc	0, 0, cr0, cr1, cr0, {0}
+  fc:	00007401 	andeq	r7, r0, r1, lsl #8
+ 100:	0000b800 	andeq	fp, r0, r0, lsl #16
+ 104:	00005600 	andeq	r5, r0, r0, lsl #12
+ 108:	00011a00 	andeq	r1, r1, r0, lsl #20
+			break;
+		case 1:
+			*(GPBCON) = 0x1000;
+ 10c:	006e0c00 	rsbeq	r0, lr, r0, lsl #24
+ 110:	004f3d01 	subeq	r3, pc, r1, lsl #26
+ 114:	91020000 	tstls	r2, r0
+ 118:	010e0074 	tsteq	lr, r4, ror r0
+			*(GPBDAT) = 0x0;
+ 11c:	000000d0 	ldrdeq	r0, [r0], -r0
+ 120:	b8014301 	stmdalt	r1, {r0, r8, r9, lr}
+ 124:	80000000 	andhi	r0, r0, r0
+ 128:	81000001 	tsthi	r0, r1
+ 12c:	42000000 	andmi	r0, r0, #0	; 0x0
+			break;
+		case 2:
+			*(GPBCON) = 0x4000;
+ 130:	0f000001 	svceq	0x00000001
+ 134:	00000166 	andeq	r0, r0, r6, ror #2
+ 138:	004f4201 	subeq	r4, pc, r1, lsl #4
+ 13c:	91020000 	tstls	r2, r0
+			*(GPBDAT) = 0x0;
+ 140:	010d0074 	tsteq	sp, r4, ror r0
+ 144:	0000009d 	muleq	r0, sp, r0
+ 148:	01805c01 	orreq	r5, r0, r1, lsl #24
+ 14c:	01f40000 	mvnseq	r0, r0
+ 150:	00ac0000 	adceq	r0, ip, r0
+			break;
+		case 3:
+			*(GPBCON) = 0x10000;
+ 154:	010e0000 	tsteq	lr, r0
+ 158:	00000121 	andeq	r0, r0, r1, lsr #2
+ 15c:	f4016601 	vst1.8	{d6-d8}, [r1], r1
+ 160:	3c000001 	stccc	0, cr0, [r0], {1}
+			*(GPBDAT) = 0x0;
+ 164:	d7000002 	strle	r0, [r0, -r2]
+ 168:	7e000000 	cdpvc	0, 0, cr0, cr0, cr0, {0}
+ 16c:	0f000001 	svceq	0x00000001
+ 170:	00000161 	andeq	r0, r0, r1, ror #2
+			break;
+		default:
+			break;
+	}
+}
+ 174:	00766501 	rsbseq	r6, r6, r1, lsl #10
+ 178:	91020000 	tstls	r2, r0
+ 17c:	010e0077 	tsteq	lr, r7, ror r0
+
+void uart0_init()
+{
+ 180:	000001b2 	strheq	r0, [r0], -r2
+ 184:	3c016c01 	stccc	12, cr6, [r1], {1}
+    GPHCON &= ~(0xf<<4);
+ 188:	88000002 	stmdahi	r0, {r1}
+ 18c:	02000002 	andeq	r0, r0, #2	; 0x2
+ 190:	a6000001 	strge	r0, [r0], -r1
+ 194:	0f000001 	svceq	0x00000001
+ 198:	00000161 	andeq	r0, r0, r1, ror #2
+ 19c:	00706b01 	rsbseq	r6, r0, r1, lsl #22
+ 1a0:	91020000 	tstls	r2, r0
+    GPHCON |= (0xa<<4);
+ 1a4:	010e0074 	tsteq	lr, r4, ror r0
+ 1a8:	00000154 	andeq	r0, r0, r4, asr r1
+ 1ac:	88017201 	stmdahi	r1, {r0, r9, ip, sp, lr}
+ 1b0:	e8000002 	stmda	r0, {r1}
+ 1b4:	2d000002 	stccs	0, cr0, [r0, #-8]
+ 1b8:	dc000001 	stcle	0, cr0, [r0], {1}
+ 1bc:	0f000001 	svceq	0x00000001
+	
+	*(ULCON0) = 0x03;
+ 1c0:	000000c9 	andeq	r0, r0, r9, asr #1
+ 1c4:	00a07101 	adceq	r7, r0, r1, lsl #2
+ 1c8:	91020000 	tstls	r2, r0
+	*(UCON0) = 0x05;
+ 1cc:	000b106c 	andeq	r1, fp, ip, rrx
+ 1d0:	73010000 	movwvc	r0, #4096	; 0x1000
+ 1d4:	000000a0 	andeq	r0, r0, r0, lsr #1
+	UBRDIV0 = 0x1a;
+ 1d8:	00749102 	rsbseq	r9, r4, r2, lsl #2
+ 1dc:	0041010e 	subeq	r0, r1, lr, lsl #2
+ 1e0:	7f010000 	svcvc	0x00010000
+ 1e4:	0002e801 	andeq	lr, r2, r1, lsl #16
+}
+ 1e8:	0004f800 	andeq	pc, r4, r0, lsl #16
+ 1ec:	00015800 	andeq	r5, r1, r0, lsl #16
+ 1f0:	00023c00 	andeq	r3, r2, r0, lsl #24
+
+void uart0_send_data(char data)
+{
+ 1f4:	00e80f00 	rsceq	r0, r8, r0, lsl #30
+ 1f8:	7e010000 	cdpvc	0, 0, cr0, cr1, cr0, {0}
+ 1fc:	0000004f 	andeq	r0, r0, pc, asr #32
+ 200:	105c9102 	subsne	r9, ip, r2, lsl #2
+ 204:	00000198 	muleq	r0, r8, r1
+	while (!(UTRSTAT0 & (1<<1)));
+ 208:	023c8001 	eorseq	r8, ip, #1	; 0x1
+ 20c:	91020000 	tstls	r2, r0
+ 210:	00841065 	addeq	r1, r4, r5, rrx
+ 214:	81010000 	tsthi	r1, r0
+ 218:	00000076 	andeq	r0, r0, r6, ror r0
+ 21c:	106f9102 	rsbne	r9, pc, r2, lsl #2
+	UTXH0 = data;
+ 220:	00000023 	andeq	r0, r0, r3, lsr #32
+ 224:	004f8201 	subeq	r8, pc, r1, lsl #4
+ 228:	91020000 	tstls	r2, r0
+ 22c:	008e1070 	addeq	r1, lr, r0, ror r0
+}
+ 230:	83010000 	movwhi	r0, #4096	; 0x1000
+ 234:	0000004f 	andeq	r0, r0, pc, asr #32
+ 238:	00749102 	rsbseq	r9, r4, r2, lsl #2
+
+void uart0_recv_data(char* data)
+{
+ 23c:	00007611 	andeq	r7, r0, r1, lsl r6
+ 240:	00024c00 	andeq	r4, r2, r0, lsl #24
+ 244:	006b1200 	rsbeq	r1, fp, r0, lsl #4
+ 248:	00090000 	andeq	r0, r9, r0
+	while(!(UTRSTAT0 & 0x01));
+ 24c:	018a010e 	orreq	r0, sl, lr, lsl #2
+ 250:	93010000 	movwls	r0, #4096	; 0x1000
+ 254:	0004f801 	andeq	pc, r4, r1, lsl #16
+ 258:	0005b800 	andeq	fp, r5, r0, lsl #16
+ 25c:	00018300 	andeq	r8, r1, r0, lsl #6
+ 260:	0002b700 	andeq	fp, r2, r0, lsl #14
+	*data = (URXH0);
+ 264:	00c90f00 	sbceq	r0, r9, r0, lsl #30
+ 268:	92010000 	andls	r0, r1, #0	; 0x0
+ 26c:	000000a0 	andeq	r0, r0, r0, lsr #1
+ 270:	13009102 	movwne	r9, #258	; 0x102
+ 274:	00000b10 	andeq	r0, r0, r0, lsl fp
+ 278:	a0940100 	addsge	r0, r4, r0, lsl #2
+}
+ 27c:	02000000 	andeq	r0, r0, #0	; 0x0
+ 280:	2f106c91 	svccs	0x00106c91
+ 284:	01000000 	tsteq	r0, r0
+
+void print_string(const char* string)
+{
+ 288:	0000ab95 	muleq	r0, r5, fp
+ 28c:	68910200 	ldmvs	r1, {r9}
+ 290:	00054c14 	andeq	r4, r5, r4, lsl ip
+ 294:	00056c00 	andeq	r6, r5, r0, lsl #24
+	const char* string_temp = string;
+ 298:	00e81000 	rsceq	r1, r8, r0
+ 29c:	a1010000 	tstge	r1, r0
+	if(string_temp != NULL)
+ 2a0:	0000004f 	andeq	r0, r0, pc, asr #32
+ 2a4:	10709102 	rsbsne	r9, r0, r2, lsl #2
+ 2a8:	00000055 	andeq	r0, r0, r5, asr r0
+ 2ac:	0076a201 	rsbseq	sl, r6, r1, lsl #4
+	{
+		while(*string_temp)
+		{
+			uart0_send_data(*string_temp);
+ 2b0:	91020000 	tstls	r2, r0
+ 2b4:	15000077 	strne	r0, [r0, #-119]
+ 2b8:	00000001 	andeq	r0, r0, r1
+ 2bc:	4fba0100 	svcmi	0x00ba0100
+			string_temp++;
+ 2c0:	b8000000 	stmdalt	r0, {}
+ 2c4:	78000005 	stmdavc	r0, {r0, r2}
+ 2c8:	ba000006 	blt	20 <.debug_info+0x20>
+void print_string(const char* string)
+{
+	const char* string_temp = string;
+	if(string_temp != NULL)
+	{
+		while(*string_temp)
+ 2cc:	10000001 	andne	r0, r0, r1
+ 2d0:	00000161 	andeq	r0, r0, r1, ror #2
+ 2d4:	0076bb01 	rsbseq	fp, r6, r1, lsl #22
+ 2d8:	91020000 	tstls	r2, r0
+		{
+			uart0_send_data(*string_temp);
+			string_temp++;
+		}
+	}
+}
+ 2dc:	008e106f 	addeq	r1, lr, pc, rrx
+ 2e0:	bc010000 	stclt	0, cr0, [r1], {0}
+ 2e4:	0000004f 	andeq	r0, r0, pc, asr #32
+
+void print_int_deci_data(int int_data)
+{
+ 2e8:	16709102 	ldrbtne	r9, [r0], -r2, lsl #2
+ 2ec:	bd010061 	stclt	0, cr0, [r1, #-388]
+ 2f0:	0000004f 	andeq	r0, r0, pc, asr #32
+ 2f4:	00749102 	rsbseq	r9, r4, r2, lsl #2
+	...
+Disassembly of section .debug_line:
+
+00000000 <.debug_line>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	000000e6 	andeq	r0, r0, r6, ror #1
+   4:	00720002 	rsbseq	r0, r2, r2
+   8:	01020000 	tsteq	r2, r0
+   c:	000d0efb 	strdeq	r0, [sp], -fp
+
+}
+  10:	01010101 	tsteq	r1, r1, lsl #2
+  14:	01000000 	tsteq	r0, r0
+  18:	2f010000 	svccs	0x00010000
+
+void init_irq()
+{
+  1c:	2f727375 	svccs	0x00727375
+  20:	61636f6c 	cmnvs	r3, ip, ror #30
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	72612f6c 	rsbvc	r2, r1, #432	; 0x1b0
+  28:	2e342f6d 	cdpcs	15, 3, cr2, cr4, cr13, {3}
+  2c:	2f322e33 	svccs	0x00322e33
+  30:	2f6e6962 	svccs	0x006e6962
+  34:	6c2f2e2e 	stcvs	14, cr2, [pc], #-184
+  38:	672f6269 	strvs	r6, [pc, -r9, ror #4]!
+  3c:	612f6363 	teqvs	pc, r3, ror #6
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	6e2d6d72 	mcrvs	13, 1, r6, cr13, cr2, {3}
+  44:	2d656e6f 	stclcs	14, cr6, [r5, #-444]!
+  48:	756e696c 	strbvc	r6, [lr, #-2412]!
+  4c:	6e672d78 	mcrvs	13, 3, r2, cr7, cr8, {3}
+  50:	62616575 	rsbvs	r6, r1, #490733568	; 0x1d400000
+  54:	2e342f69 	cdpcs	15, 3, cr2, cr4, cr9, {3}
+  58:	2f322e33 	svccs	0x00322e33
+    
+    __asm__( 
+  5c:	6c636e69 	stclvs	14, cr6, [r3], #-420
+  60:	00656475 	rsbeq	r6, r5, r5, ror r4
+  64:	69616d00 	stmdbvs	r1!, {r8, sl, fp, sp, lr}^
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	00632e6e 	rsbeq	r2, r3, lr, ror #28
+  6c:	73000000 	movwvc	r0, #0	; 0x0
+  70:	72616474 	rsbvc	r6, r1, #1946157056	; 0x74000000
+
+
+void delay(int n)
+{
+  74:	00682e67 	rsbeq	r2, r8, r7, ror #28
+  78:	00000001 	andeq	r0, r0, r1
+  7c:	00020500 	andeq	r0, r2, r0, lsl #10
+  80:	03000000 	movweq	r0, #0	; 0x0
+	while(n--);
+  84:	69840124 	stmibvs	r4, {r2, r5, r8}
+  88:	6ed8d94d 	cdpvs	9, 13, cr13, cr8, cr13, {2}
+  8c:	3d08836a 	stccc	3, cr8, [r8, #-424]
+  90:	83f58369 	mvnshi	r8, #-1543503871	; 0xa4000001
+  94:	83a183a1 	undefined instruction 0x83a183a1
+  98:	698783a1 	stmibvs	r7, {r0, r5, r7, r8, r9, pc}
+  9c:	67d8d74b 	ldrbvs	sp, [r8, fp, asr #14]
+  a0:	9f698367 	svcls	0x00698367
+  a4:	836983bb 	cmnhi	r9, #-335544318	; 0xec000002
+  a8:	8369bbbb 	cmnhi	r9, #191488	; 0x2ec00
+}
+  ac:	6383864b 	orrvs	r8, r3, #78643200	; 0x4b00000
+  b0:	02836988 	addeq	r6, r3, #2228224	; 0x220000
+  b4:	4b4b137a 	blmi	12c4ea4 <gboot_main+0x12c48ec>
+
+void light_led(int led_number)
+{
+  b8:	e508684c 	str	r6, [r8, #-2124]
+  bc:	c138089f 	ldrbgt	r0, [r8, -pc]!
+  c0:	85bef068 	ldrhi	pc, [lr, #104]!
+  c4:	864d4c83 	strbhi	r4, [sp], -r3, lsl #25
+	switch(led_number)
+  c8:	52bba384 	adcspl	sl, fp, #268435458	; 0x10000002
+  cc:	67038685 	strvs	r8, [r3, -r5, lsl #13]
+  d0:	821c0366 	andshi	r0, ip, #-1744830463	; 0x98000001
+  d4:	4b4b6785 	blmi	12d9ef0 <gboot_main+0x12d9938>
+  d8:	634b684c 	movtvs	r6, #47180	; 0xb84c
+  dc:	674b32c1 	strbvs	r3, [fp, -r1, asr #5]
+  e0:	674b6767 	strbvs	r6, [fp, -r7, ror #14]
+  e4:	000c024b 	andeq	r0, ip, fp, asr #4
+	{
+		case 0:
+			*(GPBCON) = 0x400;
+  e8:	Address 0x000000e8 is out of bounds.
+
+Disassembly of section .rodata:
+
+00000000 <.rodata>:
+   0:	6c65480a 	stclvs	8, cr4, [r5], #-40
+   4:	47206f6c 	strmi	r6, [r0, -ip, ror #30]!
+   8:	6f6f422d 	svcvs	0x006f422d
+   c:	00000a74 	andeq	r0, r0, r4, ror sl
+  10:	203d2061 	eorscs	r2, sp, r1, rrx
+  14:	000a6425 	andeq	r6, sl, r5, lsr #8
+Disassembly of section .debug_frame:
+
+00000000 <.debug_frame>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	0000000c 	andeq	r0, r0, ip
+   4:	ffffffff 	undefined instruction 0xffffffff
+   8:	7c010001 	stcvc	0, cr0, [r1], {1}
+   c:	000d0c0e 	andeq	r0, sp, lr, lsl #24
+
+}
+  10:	00000014 	andeq	r0, r0, r4, lsl r0
+	...
+
+void init_irq()
+{
+  1c:	0000001c 	andeq	r0, r0, ip, lsl r0
+  20:	8b040e44 	blhi	103938 <gboot_main+0x103380>
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	0b0d4401 	bleq	351030 <gboot_main+0x350a78>
+  28:	00000014 	andeq	r0, r0, r4, lsl r0
+  2c:	00000000 	andeq	r0, r0, r0
+  30:	0000001c 	andeq	r0, r0, ip, lsl r0
+  34:	00000058 	andeq	r0, r0, r8, asr r0
+  38:	8b040e44 	blhi	103950 <gboot_main+0x103398>
+  3c:	0b0d4401 	bleq	351048 <gboot_main+0x350a90>
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	00000014 	andeq	r0, r0, r4, lsl r0
+  44:	00000000 	andeq	r0, r0, r0
+  48:	00000074 	andeq	r0, r0, r4, ror r0
+  4c:	00000044 	andeq	r0, r0, r4, asr #32
+  50:	8b040e44 	blhi	103968 <gboot_main+0x1033b0>
+  54:	0b0d4401 	bleq	351060 <gboot_main+0x350aa8>
+  58:	00000014 	andeq	r0, r0, r4, lsl r0
+    
+    __asm__( 
+  5c:	00000000 	andeq	r0, r0, r0
+  60:	000000b8 	strheq	r0, [r0], -r8
+  64:	000000c8 	andeq	r0, r0, r8, asr #1
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	8b040e44 	blhi	103980 <gboot_main+0x1033c8>
+  6c:	0b0d4401 	bleq	351078 <gboot_main+0x350ac0>
+  70:	00000014 	andeq	r0, r0, r4, lsl r0
+
+
+void delay(int n)
+{
+  74:	00000000 	andeq	r0, r0, r0
+  78:	00000180 	andeq	r0, r0, r0, lsl #3
+  7c:	00000074 	andeq	r0, r0, r4, ror r0
+  80:	8b040e44 	blhi	103998 <gboot_main+0x1033e0>
+	while(n--);
+  84:	0b0d4401 	bleq	351090 <gboot_main+0x350ad8>
+  88:	00000014 	andeq	r0, r0, r4, lsl r0
+  8c:	00000000 	andeq	r0, r0, r0
+  90:	000001f4 	strdeq	r0, [r0], -r4
+  94:	00000048 	andeq	r0, r0, r8, asr #32
+  98:	8b040e44 	blhi	1039b0 <gboot_main+0x1033f8>
+  9c:	0b0d4401 	bleq	3510a8 <gboot_main+0x350af0>
+  a0:	00000014 	andeq	r0, r0, r4, lsl r0
+  a4:	00000000 	andeq	r0, r0, r0
+  a8:	0000023c 	andeq	r0, r0, ip, lsr r2
+}
+  ac:	0000004c 	andeq	r0, r0, ip, asr #32
+  b0:	8b040e44 	blhi	1039c8 <gboot_main+0x103410>
+  b4:	0b0d4401 	bleq	3510c0 <gboot_main+0x350b08>
+
+void light_led(int led_number)
+{
+  b8:	00000018 	andeq	r0, r0, r8, lsl r0
+  bc:	00000000 	andeq	r0, r0, r0
+  c0:	00000288 	andeq	r0, r0, r8, lsl #5
+  c4:	00000060 	andeq	r0, r0, r0, rrx
+	switch(led_number)
+  c8:	8e080e44 	cdphi	14, 0, cr0, cr8, cr4, {2}
+  cc:	44028b01 	strmi	r8, [r2], #-2817
+  d0:	00040b0c 	andeq	r0, r4, ip, lsl #22
+  d4:	00000018 	andeq	r0, r0, r8, lsl r0
+  d8:	00000000 	andeq	r0, r0, r0
+  dc:	000002e8 	andeq	r0, r0, r8, ror #5
+  e0:	00000210 	andeq	r0, r0, r0, lsl r2
+  e4:	8e080e44 	cdphi	14, 0, cr0, cr8, cr4, {2}
+	{
+		case 0:
+			*(GPBCON) = 0x400;
+  e8:	44028b01 	strmi	r8, [r2], #-2817
+  ec:	00040b0c 	andeq	r0, r4, ip, lsl #22
+  f0:	00000024 	andeq	r0, r0, r4, lsr #32
+  f4:	00000000 	andeq	r0, r0, r0
+			*(GPBDAT) = 0;
+  f8:	000004f8 	strdeq	r0, [r0], -r8
+  fc:	000000c0 	andeq	r0, r0, r0, asr #1
+ 100:	44100e44 	ldrmi	r0, [r0], #-3652
+ 104:	058e180e 	streq	r1, [lr, #2062]
+ 108:	0183068b 	orreq	r0, r3, fp, lsl #13
+			break;
+		case 1:
+			*(GPBCON) = 0x1000;
+ 10c:	03810282 	orreq	r0, r1, #536870920	; 0x20000008
+ 110:	0c440480 	cfstrdeq	mvd0, [r4], {128}
+ 114:	0000140b 	andeq	r1, r0, fp, lsl #8
+ 118:	00000018 	andeq	r0, r0, r8, lsl r0
+			*(GPBDAT) = 0x0;
+ 11c:	00000000 	andeq	r0, r0, r0
+ 120:	000005b8 	strheq	r0, [r0], -r8
+ 124:	000000c0 	andeq	r0, r0, r0, asr #1
+ 128:	8e080e44 	cdphi	14, 0, cr0, cr8, cr4, {2}
+ 12c:	44028b01 	strmi	r8, [r2], #-2817
+			break;
+		case 2:
+			*(GPBCON) = 0x4000;
+ 130:	00040b0c 	andeq	r0, r4, ip, lsl #22
+Disassembly of section .debug_loc:
+
+00000000 <.debug_loc>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	00000000 	andeq	r0, r0, r0
+   4:	00000004 	andeq	r0, r0, r4
+   8:	045d0001 	ldrbeq	r0, [sp], #-1
+   c:	08000000 	stmdaeq	r0, {}
+
+}
+  10:	02000000 	andeq	r0, r0, #0	; 0x0
+  14:	08047d00 	stmdaeq	r4, {r8, sl, fp, ip, sp, lr}
+  18:	1c000000 	stcne	0, cr0, [r0], {0}
+
+void init_irq()
+{
+  1c:	02000000 	andeq	r0, r0, #0	; 0x0
+  20:	00047b00 	andeq	r7, r4, r0, lsl #22
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	00000000 	andeq	r0, r0, r0
+  28:	1c000000 	stcne	0, cr0, [r0], {0}
+  2c:	20000000 	andcs	r0, r0, r0
+  30:	01000000 	tsteq	r0, r0
+  34:	00205d00 	eoreq	r5, r0, r0, lsl #26
+  38:	00240000 	eoreq	r0, r4, r0
+  3c:	00020000 	andeq	r0, r2, r0
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	0024047d 	eoreq	r0, r4, sp, ror r4
+  44:	00740000 	rsbseq	r0, r4, r0
+  48:	00020000 	andeq	r0, r2, r0
+  4c:	0000047b 	andeq	r0, r0, fp, ror r4
+  50:	00000000 	andeq	r0, r0, r0
+  54:	00740000 	rsbseq	r0, r4, r0
+  58:	00780000 	rsbseq	r0, r8, r0
+    
+    __asm__( 
+  5c:	00010000 	andeq	r0, r1, r0
+  60:	0000785d 	andeq	r7, r0, sp, asr r8
+  64:	00007c00 	andeq	r7, r0, r0, lsl #24
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	7d000200 	sfmvc	f0, 4, [r0]
+  6c:	00007c04 	andeq	r7, r0, r4, lsl #24
+  70:	0000b800 	andeq	fp, r0, r0, lsl #16
+
+
+void delay(int n)
+{
+  74:	7b000200 	blvc	87c <gboot_main+0x2c4>
+  78:	00000004 	andeq	r0, r0, r4
+  7c:	00000000 	andeq	r0, r0, r0
+  80:	0000b800 	andeq	fp, r0, r0, lsl #16
+	while(n--);
+  84:	0000bc00 	andeq	fp, r0, r0, lsl #24
+  88:	5d000100 	stfpls	f0, [r0]
+  8c:	000000bc 	strheq	r0, [r0], -ip
+  90:	000000c0 	andeq	r0, r0, r0, asr #1
+  94:	047d0002 	ldrbteq	r0, [sp], #-2
+  98:	000000c0 	andeq	r0, r0, r0, asr #1
+  9c:	00000180 	andeq	r0, r0, r0, lsl #3
+  a0:	047b0002 	ldrbteq	r0, [fp], #-2
+	...
+}
+  ac:	00000180 	andeq	r0, r0, r0, lsl #3
+  b0:	00000184 	andeq	r0, r0, r4, lsl #3
+  b4:	845d0001 	ldrbhi	r0, [sp], #-1
+
+void light_led(int led_number)
+{
+  b8:	88000001 	stmdahi	r0, {r0}
+  bc:	02000001 	andeq	r0, r0, #1	; 0x1
+  c0:	88047d00 	stmdahi	r4, {r8, sl, fp, ip, sp, lr}
+  c4:	f4000001 	vst4.8	{d0-d3}, [r0], r1
+	switch(led_number)
+  c8:	02000001 	andeq	r0, r0, #1	; 0x1
+  cc:	00047b00 	andeq	r7, r4, r0, lsl #22
+  d0:	00000000 	andeq	r0, r0, r0
+  d4:	f4000000 	vst4.8	{d0-d3}, [r0], r0
+  d8:	f8000001 	undefined instruction 0xf8000001
+  dc:	01000001 	tsteq	r0, r1
+  e0:	01f85d00 	mvnseq	r5, r0, lsl #26
+  e4:	01fc0000 	mvnseq	r0, r0
+	{
+		case 0:
+			*(GPBCON) = 0x400;
+  e8:	00020000 	andeq	r0, r2, r0
+  ec:	01fc047d 	mvnseq	r0, sp, ror r4
+  f0:	023c0000 	eorseq	r0, ip, #0	; 0x0
+  f4:	00020000 	andeq	r0, r2, r0
+			*(GPBDAT) = 0;
+  f8:	0000047b 	andeq	r0, r0, fp, ror r4
+  fc:	00000000 	andeq	r0, r0, r0
+ 100:	023c0000 	eorseq	r0, ip, #0	; 0x0
+ 104:	02400000 	subeq	r0, r0, #0	; 0x0
+ 108:	00010000 	andeq	r0, r1, r0
+			break;
+		case 1:
+			*(GPBCON) = 0x1000;
+ 10c:	0002405d 	andeq	r4, r2, sp, asr r0
+ 110:	00024400 	andeq	r4, r2, r0, lsl #8
+ 114:	7d000200 	sfmvc	f0, 4, [r0]
+ 118:	00024404 	andeq	r4, r2, r4, lsl #8
+			*(GPBDAT) = 0x0;
+ 11c:	00028800 	andeq	r8, r2, r0, lsl #16
+ 120:	7b000200 	blvc	928 <gboot_main+0x370>
+ 124:	00000004 	andeq	r0, r0, r4
+ 128:	00000000 	andeq	r0, r0, r0
+ 12c:	00028800 	andeq	r8, r2, r0, lsl #16
+			break;
+		case 2:
+			*(GPBCON) = 0x4000;
+ 130:	00028c00 	andeq	r8, r2, r0, lsl #24
+ 134:	5d000100 	stfpls	f0, [r0]
+ 138:	0000028c 	andeq	r0, r0, ip, lsl #5
+ 13c:	00000290 	muleq	r0, r0, r2
+			*(GPBDAT) = 0x0;
+ 140:	087d0002 	ldmdaeq	sp!, {r1}^
+ 144:	00000290 	muleq	r0, r0, r2
+ 148:	000002e8 	andeq	r0, r0, r8, ror #5
+ 14c:	047b0002 	ldrbteq	r0, [fp], #-2
+	...
+			break;
+		case 3:
+			*(GPBCON) = 0x10000;
+ 158:	000002e8 	andeq	r0, r0, r8, ror #5
+ 15c:	000002ec 	andeq	r0, r0, ip, ror #5
+ 160:	ec5d0001 	mrrc	0, 0, r0, sp, cr1
+			*(GPBDAT) = 0x0;
+ 164:	f0000002 	undefined instruction 0xf0000002
+ 168:	02000002 	andeq	r0, r0, #2	; 0x2
+ 16c:	f0087d00 	undefined instruction 0xf0087d00
+ 170:	f8000002 	undefined instruction 0xf8000002
+			break;
+		default:
+			break;
+	}
+}
+ 174:	02000004 	andeq	r0, r0, #4	; 0x4
+ 178:	00047b00 	andeq	r7, r4, r0, lsl #22
+ 17c:	00000000 	andeq	r0, r0, r0
+
+void uart0_init()
+{
+ 180:	f8000000 	undefined instruction 0xf8000000
+ 184:	fc000004 	stc2	0, cr0, [r0], {4}
+    GPHCON &= ~(0xf<<4);
+ 188:	01000004 	tsteq	r0, r4
+ 18c:	04fc5d00 	ldrbteq	r5, [ip], #3328
+ 190:	05000000 	streq	r0, [r0]
+ 194:	00020000 	andeq	r0, r2, r0
+ 198:	0500107d 	streq	r1, [r0, #-125]
+ 19c:	05040000 	streq	r0, [r4]
+ 1a0:	00020000 	andeq	r0, r2, r0
+    GPHCON |= (0xa<<4);
+ 1a4:	0504187d 	streq	r1, [r4, #-2173]
+ 1a8:	05b80000 	ldreq	r0, [r8]!
+ 1ac:	00020000 	andeq	r0, r2, r0
+ 1b0:	0000147b 	andeq	r1, r0, fp, ror r4
+ 1b4:	00000000 	andeq	r0, r0, r0
+ 1b8:	05b80000 	ldreq	r0, [r8]!
+ 1bc:	05bc0000 	ldreq	r0, [ip]!
+	
+	*(ULCON0) = 0x03;
+ 1c0:	00010000 	andeq	r0, r1, r0
+ 1c4:	0005bc5d 	andeq	fp, r5, sp, asr ip
+ 1c8:	0005c000 	andeq	ip, r5, r0
+	*(UCON0) = 0x05;
+ 1cc:	7d000200 	sfmvc	f0, 4, [r0]
+ 1d0:	0005c008 	andeq	ip, r5, r8
+ 1d4:	00067800 	andeq	r7, r6, r0, lsl #16
+	UBRDIV0 = 0x1a;
+ 1d8:	7b000200 	blvc	9e0 <gboot_main+0x428>
+ 1dc:	00000004 	andeq	r0, r0, r4
+ 1e0:	00000000 	andeq	r0, r0, r0
+	...
+Disassembly of section .debug_pubnames:
+
+00000000 <.debug_pubnames>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	000000be 	strheq	r0, [r0], -lr
+   4:	00000002 	andeq	r0, r0, r2
+   8:	02f90000 	rscseq	r0, r9, #0	; 0x0
+   c:	00b60000 	adcseq	r0, r6, r0
+
+}
+  10:	61720000 	cmnvs	r2, r0
+  14:	00657369 	rsbeq	r7, r5, r9, ror #6
+  18:	000000e0 	andeq	r0, r0, r0, ror #1
+
+void init_irq()
+{
+  1c:	74696e69 	strbtvc	r6, [r9], #-3689
+  20:	7172695f 	cmnvc	r2, pc, asr r9
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	0000f400 	andeq	pc, r0, r0, lsl #8
+  28:	6c656400 	cfstrdvs	mvd6, [r5]
+  2c:	1a007961 	bne	1e5b8 <gboot_main+0x1e000>
+  30:	6c000001 	stcvs	0, cr0, [r0], {1}
+  34:	74686769 	strbtvc	r6, [r8], #-1897
+  38:	64656c5f 	strbtvs	r6, [r5], #-3167
+  3c:	00014200 	andeq	r4, r1, r0, lsl #4
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	72617500 	rsbvc	r7, r1, #0	; 0x0
+  44:	695f3074 	ldmdbvs	pc, {r2, r4, r5, r6, ip, sp}^
+  48:	0074696e 	rsbseq	r6, r4, lr, ror #18
+  4c:	00000156 	andeq	r0, r0, r6, asr r1
+  50:	74726175 	ldrbtvc	r6, [r2], #-373
+  54:	65735f30 	ldrbvs	r5, [r3, #-3888]!
+  58:	645f646e 	ldrbvs	r6, [pc], #1134	; 60 <.debug_pubnames+0x60>
+    
+    __asm__( 
+  5c:	00617461 	rsbeq	r7, r1, r1, ror #8
+  60:	0000017e 	andeq	r0, r0, lr, ror r1
+  64:	74726175 	ldrbtvc	r6, [r2], #-373
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	65725f30 	ldrbvs	r5, [r2, #-3888]!
+  6c:	645f7663 	ldrbvs	r7, [pc], #1635	; 74 <.debug_pubnames+0x74>
+  70:	00617461 	rsbeq	r7, r1, r1, ror #8
+
+
+void delay(int n)
+{
+  74:	000001a6 	andeq	r0, r0, r6, lsr #3
+  78:	6e697270 	mcrvs	2, 3, r7, cr9, cr0, {3}
+  7c:	74735f74 	ldrbtvc	r5, [r3], #-3956
+  80:	676e6972 	undefined
+	while(n--);
+  84:	0001dc00 	andeq	sp, r1, r0, lsl #24
+  88:	69727000 	ldmdbvs	r2!, {ip, sp, lr}^
+  8c:	695f746e 	ldmdbvs	pc, {r1, r2, r3, r5, r6, sl, ip, sp, lr}^
+  90:	645f746e 	ldrbvs	r7, [pc], #1134	; 98 <.debug_pubnames+0x98>
+  94:	5f696365 	svcpl	0x00696365
+  98:	61746164 	cmnvs	r4, r4, ror #2
+  9c:	00024c00 	andeq	r4, r2, r0, lsl #24
+  a0:	69727000 	ldmdbvs	r2!, {ip, sp, lr}^
+  a4:	5f66746e 	svcpl	0x0066746e
+  a8:	69727473 	ldmdbvs	r2!, {r0, r1, r4, r5, r6, sl, ip, sp, lr}^
+}
+  ac:	b700676e 	strlt	r6, [r0, -lr, ror #14]
+  b0:	67000002 	strvs	r0, [r0, -r2]
+  b4:	746f6f62 	strbtvc	r6, [pc], #3938	; bc <.debug_pubnames+0xbc>
+
+void light_led(int led_number)
+{
+  b8:	69616d5f 	stmdbvs	r1!, {r0, r1, r2, r3, r4, r6, r8, sl, fp, sp, lr}^
+  bc:	0000006e 	andeq	r0, r0, lr, rrx
+	...
+Disassembly of section .debug_aranges:
+
+00000000 <.debug_aranges>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	0000001c 	andeq	r0, r0, ip, lsl r0
+   4:	00000002 	andeq	r0, r0, r2
+   8:	00040000 	andeq	r0, r4, r0
+	...
+
+}
+  14:	00000678 	andeq	r0, r0, r8, ror r6
+	...
+Disassembly of section .debug_str:
+
+00000000 <.debug_str>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	6f6f6267 	svcvs	0x006f6267
+   4:	616d5f74 	smcvs	54772
+   8:	73006e69 	movwvc	r6, #3689	; 0xe69
+   c:	6e697274 	mcrvs	2, 3, r7, cr9, cr4, {3}
+
+}
+  10:	65745f67 	ldrbvs	r5, [r4, #-3943]!
+  14:	4700706d 	strmi	r7, [r0, -sp, rrx]
+  18:	4320554e 	teqmi	r0, #327155712	; 0x13800000
+
+void init_irq()
+{
+  1c:	332e3420 	teqcc	lr, #536870912	; 0x20000000
+  20:	6200322e 	andvs	r3, r0, #-536870910	; 0xe0000002
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	645f7469 	ldrbvs	r7, [pc], #1129	; 2c <.debug_str+0x2c>
+  28:	73657669 	cmnvc	r5, #110100480	; 0x6900000
+  2c:	6100726f 	tstvs	r0, pc, ror #4
+  30:	705f6772 	subsvc	r6, pc, r2, ror r7
+  34:	73007274 	movwvc	r7, #628	; 0x274
+  38:	74726f68 	ldrbtvc	r6, [r2], #-3944
+  3c:	746e6920 	strbtvc	r6, [lr], #-2336
+
+    // EINT8_23使能
+    *(INTMSK)   &= ~(1<<5);
+  40:	69727000 	ldmdbvs	r2!, {ip, sp, lr}^
+  44:	695f746e 	ldmdbvs	pc, {r1, r2, r3, r5, r6, sl, ip, sp, lr}^
+  48:	645f746e 	ldrbvs	r7, [pc], #1134	; 50 <.debug_str+0x50>
+  4c:	5f696365 	svcpl	0x00696365
+  50:	61746164 	cmnvs	r4, r4, ror #2
+  54:	61686300 	cmnvs	r8, r0, lsl #6
+  58:	61645f72 	smcvs	17906
+    
+    __asm__( 
+  5c:	64006174 	strvs	r6, [r0], #-372
+  60:	79616c65 	stmdbvc	r1!, {r0, r2, r5, r6, sl, fp, sp, lr}^
+  64:	6f682f00 	svcvs	0x00682f00
+    "bic r0, r0, #0x80\n"
+    "msr cpsr_c, r0\n"            
+    : 
+    : 
+  );
+}
+  68:	472f656d 	strmi	r6, [pc, -sp, ror #10]!
+  6c:	69516f75 	ldmdbvs	r1, {r0, r2, r4, r5, r6, r8, r9, sl, fp, sp, lr}^
+  70:	4d2f6e61 	stcmi	14, cr6, [pc, #-388]!
+
+
+void delay(int n)
+{
+  74:	32696e69 	rsbcc	r6, r9, #1680	; 0x690
+  78:	00303434 	eorseq	r3, r0, r4, lsr r4
+  7c:	6c5f6176 	ldfvse	f6, [pc], {118}
+  80:	00747369 	rsbseq	r7, r4, r9, ror #6
+	while(n--);
+  84:	5f746962 	svcpl	0x00746962
+  88:	756c6176 	strbvc	r6, [ip, #-374]!
+  8c:	6e690065 	cdpvs	0, 6, cr0, cr9, cr5, {3}
+  90:	00786564 	rsbseq	r6, r8, r4, ror #10
+  94:	74696e69 	strbtvc	r6, [r9], #-3689
+  98:	7172695f 	cmnvc	r2, pc, asr r9
+  9c:	72617500 	rsbvc	r7, r1, #0	; 0x0
+  a0:	695f3074 	ldmdbvs	pc, {r2, r4, r5, r6, ip, sp}^
+  a4:	0074696e 	rsbseq	r6, r4, lr, ror #18
+  a8:	676e6f6c 	strbvs	r6, [lr, -ip, ror #30]!
+}
+  ac:	6e6f6c20 	cdpvs	12, 6, cr6, cr15, cr0, {1}
+  b0:	6e692067 	cdpvs	0, 6, cr2, cr9, cr7, {3}
+  b4:	5f5f0074 	svcpl	0x005f0074
+
+void light_led(int led_number)
+{
+  b8:	6c5f6176 	ldfvse	f6, [pc], {118}
+  bc:	00747369 	rsbseq	r7, r4, r9, ror #6
+  c0:	676e6f6c 	strbvs	r6, [lr, -ip, ror #30]!
+  c4:	746e6920 	strbtvc	r6, [lr], #-2336
+	switch(led_number)
+  c8:	72747300 	rsbsvc	r7, r4, #0	; 0x0
+  cc:	00676e69 	rsbeq	r6, r7, r9, ror #28
+  d0:	6867696c 	stmdavs	r7!, {r2, r3, r5, r6, r8, fp, sp, lr}^
+  d4:	656c5f74 	strbvs	r5, [ip, #-3956]!
+  d8:	6e750064 	cdpvs	0, 7, cr0, cr5, cr4, {3}
+  dc:	6e676973 	mcrvs	9, 3, r6, cr7, cr3, {3}
+  e0:	63206465 	teqvs	r0, #1694498816	; 0x65000000
+  e4:	00726168 	rsbseq	r6, r2, r8, ror #2
+	{
+		case 0:
+			*(GPBCON) = 0x400;
+  e8:	5f746e69 	svcpl	0x00746e69
+  ec:	61746164 	cmnvs	r4, r4, ror #2
+  f0:	67697300 	strbvs	r7, [r9, -r0, lsl #6]!
+  f4:	2064656e 	rsbcs	r6, r4, lr, ror #10
+			*(GPBDAT) = 0;
+  f8:	72616863 	rsbvc	r6, r1, #6488064	; 0x630000
+  fc:	6e6f6c00 	cdpvs	12, 6, cr6, cr15, cr0, {0}
+ 100:	6f6c2067 	svcvs	0x006c2067
+ 104:	7520676e 	strvc	r6, [r0, #-1902]!
+ 108:	6769736e 	strbvs	r7, [r9, -lr, ror #6]!
+			break;
+		case 1:
+			*(GPBCON) = 0x1000;
+ 10c:	2064656e 	rsbcs	r6, r4, lr, ror #10
+ 110:	00746e69 	rsbseq	r6, r4, r9, ror #28
+ 114:	69736e75 	ldmdbvs	r3!, {r0, r2, r4, r5, r6, r9, sl, fp, sp, lr}^
+ 118:	64656e67 	strbtvs	r6, [r5], #-3687
+			*(GPBDAT) = 0x0;
+ 11c:	746e6920 	strbtvc	r6, [lr], #-2336
+ 120:	72617500 	rsbvc	r7, r1, #0	; 0x0
+ 124:	735f3074 	cmpvc	pc, #116	; 0x74
+ 128:	5f646e65 	svcpl	0x00646e65
+ 12c:	61746164 	cmnvs	r4, r4, ror #2
+			break;
+		case 2:
+			*(GPBCON) = 0x4000;
+ 130:	6f687300 	svcvs	0x00687300
+ 134:	75207472 	strvc	r7, [r0, #-1138]!
+ 138:	6769736e 	strbvs	r7, [r9, -lr, ror #6]!
+ 13c:	2064656e 	rsbcs	r6, r4, lr, ror #10
+			*(GPBDAT) = 0x0;
+ 140:	00746e69 	rsbseq	r6, r4, r9, ror #28
+ 144:	73696172 	cmnvc	r9, #-2147483620	; 0x8000001c
+ 148:	5f5f0065 	svcpl	0x005f0065
+ 14c:	63007061 	movwvs	r7, #97	; 0x61
+ 150:	00726168 	rsbseq	r6, r2, r8, ror #2
+			break;
+		case 3:
+			*(GPBCON) = 0x10000;
+ 154:	6e697270 	mcrvs	2, 3, r7, cr9, cr0, {3}
+ 158:	74735f74 	ldrbtvc	r5, [r3], #-3956
+ 15c:	676e6972 	undefined
+ 160:	74616400 	strbtvc	r6, [r1], #-1024
+			*(GPBDAT) = 0x0;
+ 164:	656c0061 	strbvs	r0, [ip, #-97]!
+ 168:	756e5f64 	strbvc	r5, [lr, #-3940]!
+ 16c:	7265626d 	rsbvc	r6, r5, #-805306362	; 0xd0000006
+ 170:	69616d00 	stmdbvs	r1!, {r8, sl, fp, sp, lr}^
+			break;
+		default:
+			break;
+	}
+}
+ 174:	00632e6e 	rsbeq	r2, r3, lr, ror #28
+ 178:	676e6f6c 	strbvs	r6, [lr, -ip, ror #30]!
+ 17c:	736e7520 	cmnvc	lr, #134217728	; 0x8000000
+
+void uart0_init()
+{
+ 180:	656e6769 	strbvs	r6, [lr, #-1897]!
+ 184:	6e692064 	cdpvs	0, 6, cr2, cr9, cr4, {3}
+    GPHCON &= ~(0xf<<4);
+ 188:	72700074 	rsbsvc	r0, r0, #116	; 0x74
+ 18c:	66746e69 	ldrbtvs	r6, [r4], -r9, ror #28
+ 190:	7274735f 	rsbsvc	r7, r4, #2080374785	; 0x7c000001
+ 194:	00676e69 	rsbeq	r6, r7, r9, ror #28
+ 198:	5f746962 	svcpl	0x00746962
+ 19c:	756c6176 	strbvc	r6, [ip, #-374]!
+ 1a0:	5f007365 	svcpl	0x00007365
+    GPHCON |= (0xa<<4);
+ 1a4:	756e675f 	strbvc	r6, [lr, #-1887]!
+ 1a8:	61765f63 	cmnvs	r6, r3, ror #30
+ 1ac:	73696c5f 	cmnvc	r9, #24320	; 0x5f00
+ 1b0:	61750074 	cmnvs	r5, r4, ror r0
+ 1b4:	5f307472 	svcpl	0x00307472
+ 1b8:	76636572 	undefined
+ 1bc:	7461645f 	strbtvc	r6, [r1], #-1119
+	
+	*(ULCON0) = 0x03;
+ 1c0:	Address 0x000001c0 is out of bounds.
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	43434700 	movtmi	r4, #14080	; 0x3700
+   4:	5328203a 	teqpl	r8, #58	; 0x3a
+   8:	6372756f 	cmnvs	r2, #465567744	; 0x1bc00000
+   c:	20797265 	rsbscs	r7, r9, r5, ror #4
+
+}
+  10:	202b2b47 	eorcs	r2, fp, r7, asr #22
+  14:	6574694c 	ldrbvs	r6, [r4, #-2380]!
+  18:	30303220 	eorscc	r3, r0, r0, lsr #4
+
+void init_irq()
+{
+  1c:	2d337138 	ldfcss	f7, [r3, #-224]!
+  20:	20293237 	eorcs	r3, r9, r7, lsr r2
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	2e332e34 	mrccs	14, 1, r2, cr3, cr4, {1}
+  28:	Address 0x00000028 is out of bounds.
+
+Disassembly of section .ARM.attributes:
+
+00000000 <.ARM.attributes>:
+#define URXH0 (*(volatile unsigned long*)0x50000024) 
+#define UBRDIV0 (*(volatile unsigned long*)0x50000028)
+
+
+int raise(int a)
+{
+   0:	00002741 	andeq	r2, r0, r1, asr #14
+   4:	61656100 	cmnvs	r5, r0, lsl #2
+   8:	01006962 	tsteq	r0, r2, ror #18
+   c:	0000001d 	andeq	r0, r0, sp, lsl r0
+
+}
+  10:	00543405 	subseq	r3, r4, r5, lsl #8
+  14:	01080206 	tsteq	r8, r6, lsl #4
+  18:	01140412 	tsteq	r4, r2, lsl r4
+
+void init_irq()
+{
+  1c:	03170115 	tsteq	r7, #1073741829	; 0x40000005
+  20:	01190118 	tsteq	r9, r8, lsl r1
+
+    // 在EINTMASK寄存器中使能它们
+    *(EINTMASK) &= (~(1<<8)) & (~(1<<11)) & (~(1<<13)) & (~(1<<14));
+  24:	061e021a 	undefined
