@@ -35,11 +35,14 @@ not_used:
 	nop
 
 irq:
-	nop
-
+	sub lr, lr, #4  
+	stmfd sp!, {r0-r12, lr}     /* Save envrionment */  
+	bl HandleIrq               
+	ldmfd sp!, {r0-r12, pc}^    /* Recover envrionment, ^ take spsr to cpsr */  
+	
 fiq:	
 	nop
-
+.global reset
 reset:
 	bl set_svc
 	bl disable_watchdog
@@ -47,11 +50,12 @@ reset:
 	bl disable_mmu
 	bl init_clock
 	bl init_sdram
-	bl copy_to_ram
 	bl init_stack
+	bl nandflash_init
+	bl copy_to_ram	
 	bl clean_bss
+	bl light_led
 	ldr pc, =gboot_main
-@	bl light_led
 
 set_svc:
 	mrs r0, cpsr
@@ -86,7 +90,7 @@ disable_mmu:
 
 init_clock:
 	ldr r0, =CLKDIVN
-	mov r1, #0x5
+	mov r1, #0x5		//FCLK : HCLK : PCLK = 1 : 4 : 8(Divide Ratio)
 	str r1, [r0]
 	
 	mcr p15,0,r0,c1,c0,0
@@ -97,7 +101,7 @@ init_clock:
 	ldr r1, =MPLL_405MHZ
 	str r1, [r0]
 	mov pc, lr
-	
+
 #define mem_contrl 0x48000000
 init_sdram:
 	ldr r0, =mem_contrl 
@@ -111,19 +115,21 @@ init_sdram:
 	bne 0b
 	mov pc, lr
 	
+#define copy_length 0x150000	
 copy_to_ram:
-	ldr r0, =0x0
-	ldr r1, =0x30008000
-	add r3, r0, #1024*20
-
-copy_loop:
-	ldr r2, [r0], #4
-	str r2, [r1], #4
-	cmp r0, r3
-	bne copy_loop
-	mov pc, lr
-
+	mov r0,#0x00
+	ldr r1,=_start
+	ldr r2,=bss_end
+	sub r2,r2,r1
+	mov ip,lr
+	bl nand_to_ram
+	mov lr,ip
+	mov pc,lr
+	
 init_stack:
+	msr cpsr_c, #0xd2	//Switch irq mode and set sps
+	ldr sp, =0x33000000
+	msr cpsr_c, #0xd3	//Switch back to SVC
 	ldr sp, =0x34000000
 	mov pc ,lr
 

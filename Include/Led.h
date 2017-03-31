@@ -8,6 +8,6 @@
 #define GPBDAT (*(volatile unsigned long*)0x56000014)
 
 void light_led(int led_number);
-void led_test();
+MINI2440_STATUS led_test();
 
 #endif

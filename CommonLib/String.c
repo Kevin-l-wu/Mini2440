@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include "String.h"
 
+static char deci_convert_table[10] = 
+{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+};
+
+static char hex_convert_table[16] = 
+{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+};
 
 /***********************************************************************
 Function Name:  		strcmp
@@ -165,3 +174,85 @@ void clean_string_prox(char* dest_string)
 		}
 	}
 }
+
+/***********************************************************************
+Function Name:  		string_to_int
+Input Paramater:		source_string
+Function Description:	Convert string to int value
+************************************************************************/
+int string_to_int(char* source_string)
+{
+	int ret = 0;
+	int str_index = 0;
+	int string_length = strlen(source_string);
+	int first_valid_bit = 0;			//If the last char not number, 
+
+	//Flag first valid bit
+	for(str_index = string_length - 1; str_index >= 0; str_index--)
+	{
+		if('0' <= source_string[str_index] && source_string[str_index] <= '9')
+		{
+			first_valid_bit = string_length - 1 - str_index;
+			break;
+		}
+	}
+	
+	for(str_index = string_length - 1; str_index >= 0; str_index--)
+	{
+		if('0' <= source_string[str_index] && source_string[str_index] <= '9')
+		{
+			ret = ret + caculate_power(10, string_length - 1 - str_index - first_valid_bit) 
+				* (source_string[str_index] - '0');
+		}
+	}
+	
+	return ret;
+}
+
+/***********************************************************************
+Function Name:  		hex_string_to_int
+Input Paramater:		source_string
+Function Description:	Convert string to int value
+************************************************************************/
+int hex_string_to_int(char* source_string)
+{
+	int ret = 0;
+	int str_index = 0;
+	int string_length = strlen(source_string);
+	int first_valid_bit = 0;			//If the last char not number, 
+	
+
+	//Flag first valid bit
+	for(str_index = string_length - 1; str_index >= 0; str_index--)
+	{
+		if(('0' <= source_string[str_index] && source_string[str_index] <= '9') ||
+			('a' <= source_string[str_index] && source_string[str_index] <= 'f') ||
+			('A' <= source_string[str_index] && source_string[str_index] <= 'F'))
+		{
+			first_valid_bit = string_length - 1 - str_index;
+			break;
+		}
+	}
+	
+	for(str_index = string_length - 1; str_index >= 0; str_index--)
+	{
+		if('0' <= source_string[str_index] && source_string[str_index] <= '9')
+		{
+			ret = ret + caculate_power(16, string_length - 1 - str_index - first_valid_bit) 
+				* (source_string[str_index] - '0');
+		}
+		else if(('a' <= source_string[str_index] && source_string[str_index] <= 'f'))
+		{
+			ret = ret + caculate_power(16, string_length - 1 - str_index - first_valid_bit) 
+				* (source_string[str_index] - 'a' + 10);
+		}
+		else if('A' <= source_string[str_index] && source_string[str_index] <= 'F')
+		{
+			ret = ret + caculate_power(16, string_length - 1 - str_index - first_valid_bit) 
+				* (source_string[str_index] - 'A' + 10);
+		}
+	}
+	
+	return ret;
+}
+

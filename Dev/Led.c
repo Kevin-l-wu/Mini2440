@@ -1,7 +1,8 @@
-#include "Led.h"
+#include "Error.h"
 #include "Common.h"
 #include "Uart.h"
 #include "Framework.h"
+#include "Led.h"
 
 void light_led(int led_number)
 {
@@ -31,9 +32,10 @@ void put_out_led(int led_number)
 	GPBDAT = gpbdat_set_value;
 }
 
-void led_test(int argc, char(*argv)[MAX_COMMAND_LENGTH])
+MINI2440_STATUS led_test(int argc, char(*argv)[MAX_COMMAND_LENGTH])
 {
 	print_string("In function led_test\n");
+	MINI2440_STATUS status = MINI2440_SUCCESS;
 	int index = 0;
 	
 	for(index = 0; index < LED_MAX_NUMBER; index++)
@@ -43,4 +45,6 @@ void led_test(int argc, char(*argv)[MAX_COMMAND_LENGTH])
 		delay(500000);
 		put_out_led(index);
 	}
+	
+	return status;
 }
